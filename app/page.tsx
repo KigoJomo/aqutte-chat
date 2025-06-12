@@ -1,103 +1,194 @@
-import Image from "next/image";
+'use client';
+
+import { useDeviceType } from '@/hooks/useDeviceType';
+import Button from '@/lib/components/ui/Button';
+import Input from '@/lib/components/ui/Input';
+import MarkdownRenderer from '@/lib/components/ui/MarkdownRenderer';
+import { cn } from '@/lib/utils/utils';
+import { useChat } from '@ai-sdk/react';
+import { ArrowUp } from 'lucide-react';
+import {
+  useRef,
+  useEffect,
+  useCallback,
+  ChangeEvent,
+  KeyboardEvent,
+} from 'react';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { messages, input, handleInputChange, handleSubmit } = useChat();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const deviceType = useDeviceType();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const updateHeight = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    textarea.style.height = 'auto';
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 192)}px`;
+  }, []);
+
+  const handleInput = (
+    event: ChangeEvent<HTMLTextAreaElement> | ChangeEvent<HTMLInputElement>
+  ) => {
+    updateHeight();
+    handleInputChange(event);
+  };
+
+  const handleKeyDown = (
+    e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      if (deviceType === 'desktop' || e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        handleSubmit();
+      }
+    }
+  };
+
+  useEffect(() => updateHeight(), [input, updateHeight]);
+
+  useEffect(() => {
+    if (!messagesEndRef.current) return;
+
+    let userHasScrolled = false;
+
+    const scrollToBottom = () => {
+      if (!userHasScrolled && messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
+    const handleScroll = () => {
+      userHasScrolled = true;
+      // Reset after a delay so auto-scroll can resume
+      setTimeout(() => {
+        userHasScrolled = false;
+      }, 1000);
+    };
+
+    // Scroll to bottom when messages change
+    scrollToBottom();
+
+    // Listen for scroll on the correct container
+    const scrollContainer = document.querySelector('section');
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll, {
+        passive: true,
+      });
+    }
+
+    return () => {
+      if (scrollContainer) {
+        scrollContainer.removeEventListener('scroll', handleScroll);
+      }
+    };
+  }, [messages]);
+
+  return (
+    <>
+      <section className="min-h-screen overflow-y-auto hide-scrollbar flex flex-col items-center !pb-0 relative">
+        {/* Messages display */}
+        <div
+          className={`w-full max-w-3xl flex flex-col gap-4 ${
+            messages.length > 0 ? 'pb-24 pt-12' : 'flex-1 justify-center'
+          }`}>
+          {messages.length === 0 ? (
+            <div className="w-full flex flex-col items-center">
+              <h3 className="text-center text-xl font-semibold text-foreground-light">
+                I&apos;m ready to help!
+              </h3>
+              <p className="text-center text-sm text-foreground-light/70 mt-2">
+                Ask me anything to get started.
+              </p>
+            </div>
+          ) : (
+            messages.map((message) => (
+              <div
+                key={message.id}
+                className={`flex ${
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}>
+                {message.parts.map((part, i) => {
+                  switch (part.type) {
+                    case 'text':
+                      return (
+                        <div
+                          key={`${message.id}-${i}`}
+                          className={`${
+                            message.role === 'user'
+                              ? 'p-3 bg-background-light ml-auto max-w-[75%]'
+                              : 'w-full'
+                          } rounded-2xl break-words`}>
+                          <MarkdownRenderer markDowncontent={part.text} />
+                        </div>
+                      );
+                    case 'reasoning':
+                      return (
+                        <div
+                          key={`${message.id}-${i}`}
+                          className="w-full mt-2 p-3 bg-accent/10 border border-accent/30 rounded-lg text-xs text-foreground-light/80 shadow-inner">
+                          <span className="font-medium text-accent">
+                            Reasoning:
+                          </span>{' '}
+                          {part.reasoning}
+                        </div>
+                      );
+                    default:
+                      return null;
+                  }
+                })}
+              </div>
+            ))
+          )}
+          <div ref={messagesEndRef} /> {/* Scroll target */}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        {/* Input form */}
+        <form
+          onSubmit={handleSubmit}
+          className={cn(
+            'w-full max-w-3xl mx-auto shrink-0 sticky bottom-0 mt-auto',
+            'flex flex-col gap-3 bg-background/10 backdrop-blur-2xl p-4 pt-3 rounded-t-3xl',
+            'border-t-4 border-l-4 border-r-4 border-foreground-light/20',
+            'focus-within:border-foreground-light/40 transition-all duration-300'
+          )}>
+          <Input
+            name="input"
+            value={input}
+            type="textarea"
+            ref={textareaRef}
+            onKeyDown={handleKeyDown}
+            onChange={handleInput}
+            placeholder="Ask anything..."
+            className={cn(
+              'w-full bg-transparent border-none focus:ring-0 !rounded-none'
+            )}
+            rows={1}
+            inputClassName={cn(
+              '!p-2 !border-0 !rounded-none text-base',
+              'resize-none overflow-y-auto custom-scrollbar'
+            )}
+            aria-label="Chat input"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <div className="w-full flex items-center justify-between mt-1">
+            <Button size="sm" variant="outline" className="text-xs">
+              <span>Gemini 2.0 Flash</span>
+            </Button>
+            <Button
+              type="submit"
+              onClick={handleSubmit}
+              className={cn(
+                '!p-2 aspect-square !rounded-full shadow-md',
+                'hover:shadow-lg transition-shadow'
+              )}
+              aria-label="Send message">
+              <ArrowUp size={18} />
+            </Button>
+          </div>
+        </form>
+      </section>
+    </>
   );
 }
