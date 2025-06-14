@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import { ConvexClientProvider } from './ConvexClientProvider';
 import Sidebar from '@/lib/components/navigation/Sidebar';
 import { ClerkProvider } from '@clerk/nextjs';
+import { ConvexClientProvider } from './ConvexClientProvider';
+import { cn } from '@/lib/utils/utils';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -16,13 +17,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://aqutte-chat.vercel.app/'),
   title: 'Aqutte Chat',
   description:
     'Get instant responses, help with tasks, and enjoy meaningful interactions.',
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://aqchat.vercel.app',
+    url: 'https://aqutte-chat.vercel.app/',
     siteName: 'Aqutte Chat',
     title: 'Aqutte Chat',
     description:
@@ -41,16 +43,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" className="hide-scrollbar">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden flex`}>
+    <html lang="en" className="hide-scrollbar">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-x-hidden flex`}>
+        <ClerkProvider>
           <ConvexClientProvider>
             <Sidebar />
-            <main className="flex flex-col">{children}</main>
+            <main className="flex flex-col">
+              <section
+                className={cn(
+                  'min-h-screen overflow-y-auto hide-scrollbar',
+                  'flex flex-col items-center !pb-0 relative'
+                )}>
+                {children}
+                
+              </section>
+            </main>
           </ConvexClientProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

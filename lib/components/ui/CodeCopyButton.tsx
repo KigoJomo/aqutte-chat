@@ -5,7 +5,7 @@ import React, { FC, useState } from 'react';
 import Tooltip from './Tooltip';
 import Button from './Button';
 
-export const CodeCopyButton: FC<{ textToCopy: string; className?: string }> = ({
+export const CopyButton: FC<{ textToCopy: string; className?: string }> = ({
   textToCopy,
   className,
 }) => {

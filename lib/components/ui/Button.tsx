@@ -1,6 +1,6 @@
 'use client';
 
-import React, { ButtonHTMLAttributes } from 'react';
+import React, { ButtonHTMLAttributes, FormEvent } from 'react';
 import Link from 'next/link';
 import { HTMLMotionProps, motion } from 'framer-motion';
 
@@ -23,7 +23,7 @@ interface ButtonProps extends HTMLButtonProps, MotionButtonProps {
   size?: 'default' | 'sm' | 'lg';
   className?: string;
   type?: 'button' | 'submit' | 'reset';
-  onClick?: () => void;
+  onClick?: (() => void) | ((e: FormEvent<Element>) => Promise<void>);
 }
 
 const Button: React.FC<ButtonProps> = ({

@@ -12,7 +12,7 @@
   --accent: #623a83;
 
   --font-size: 1rem;
-  --font-ratio: 1.65;
+  --font-ratio: 1.35;
 }
 
 [data-theme='light'] {
@@ -67,8 +67,9 @@ h3 {
 
 h4,
 p,
+ul,
 li,
-a{
+a {
   font-size: calc(var(--font-size));
 }
 
@@ -81,9 +82,9 @@ button {
   cursor: pointer;
 }
 
-strong {
+/* strong {
   font-weight: 400;
-}
+} */
 
 input[type='checkbox']:not(:checked) {
   background-color: transparent;
@@ -107,6 +108,8 @@ hr {
   width: 100%;
   border-color: var(--foreground);
   opacity: 0.25;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
 }
 
 * {
@@ -236,10 +239,6 @@ html {
   scrollbar-width: none; /* Firefox */
 }
 
-.radial-gradient{
-  background: radial-gradient(
-    circle at center,
-    #2b82fd50 0%,
-    transparent 100%
-  );
+.radial-gradient {
+  background: radial-gradient(circle at center, #2b82fd50 0%, transparent 100%);
 }

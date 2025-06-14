@@ -6,7 +6,8 @@ import Button from '../ui/Button';
 import Logo from '../ui/Logo';
 import { LogIn, PanelLeft } from 'lucide-react';
 import Link from 'next/link';
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs';
+import { SignInButton, UserButton } from '@clerk/nextjs';
+import { Authenticated, Unauthenticated } from 'convex/react';
 
 const Sidebar = () => {
   const [open, setOpen] = useState(false);
@@ -16,12 +17,12 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="w-full fixed top-0 z-[60]  flex items-center gap-2 justify-between px-4 h-16">
+      <div className="w-full fixed top-0 z-[60]  flex items-center gap-2 justify-between px-4 h-18">
         <div
           className={cn(
-            'flex items-center w-fit h-fit py-1 bg-background-dark/70 px-2 rounded-md',
-            open ? 'gap-6' : 'gap-2',
-            'transition-all duration-300',
+            'flex items-center w-fit h-fit py-1 bg-background-dark/70 px-2 pr-4 rounded-md',
+            open ? 'gap-24' : 'gap-2',
+            'transition-all duration-200'
           )}>
           <Button
             onClick={toggleSidebar}
@@ -32,38 +33,43 @@ const Sidebar = () => {
 
           <Link href={'/'} className="logo flex items-center gap-2 ">
             <Logo size={16} />
-            <h5 className="whitespace-nowrap text-nowrap text-sm">
-              Aqutte Chat
-            </h5>
+            <h5 className="whitespace-nowrap text-nowrap text-sm">Aqutte</h5>
           </Link>
         </div>
 
         <div className="ml-auto flex items-center gap-4">
-          <SignedOut>
+          <Unauthenticated>
             <SignInButton>
               <Button size="sm" className="flex items-center gap-2">
                 <LogIn size={16} />
                 <span className="">Log In</span>
               </Button>
             </SignInButton>
-          </SignedOut>
-          <SignedIn>
+          </Unauthenticated>
+          <Authenticated>
             <UserButton />
-          </SignedIn>
+          </Authenticated>
         </div>
       </div>
 
       <aside
         className={cn(
-          'bg-background-dark h-dvh shrink-0 overflow-hidden z-50',
-          'flex flex-col items-start gap-4 py-4 pt-16',
-          open ? 'w-64 px-4' : 'w-0 px-0',
-          'transition-all duration-300',
+          'h-dvh shrink-0 overflow-hidden z-50 py-2',
+          open ? 'w-64 px-2' : 'w-0 px-0',
+          'transition-all duration-200',
           '*:text-nowrap *:whitespace-nowrap flex-nowrap *:shrink-0'
         )}>
-        <hr />
+        <div
+          className={cn(
+            'w-full h-full',
+            'bg-background-dark rounded-2xl border border-accent/50',
+            'flex flex-col items-start gap-4 py-4 pt-16',
+            open ? 'w-64 px-4' : 'w-0 px-0'
+          )}>
+          <hr className="w-full transition-all duration-200" />
 
-        <nav className={cn('w-full flex flex-col gap-4')}></nav>
+          <nav className={cn('w-full flex flex-col gap-4')}></nav>
+        </div>
       </aside>
     </>
   );

@@ -8,8 +8,8 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { CodeCopyButton } from './CodeCopyButton';
 import { CodeXml } from 'lucide-react';
+import { CopyButton } from './CodeCopyButton';
 
 interface MarkdownRendererProps {
   markDowncontent: string;
@@ -21,7 +21,7 @@ const MarkdownRenderer: FC<MarkdownRendererProps> = ({
   className,
 }) => {
   return (
-    <div className={`${className} max-w-full prose dark:prose-invert`}>
+    <div className={`${className} max-w-full prose dark:prose-invert *:!transition-all *:!duration-300`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
@@ -49,7 +49,7 @@ const MarkdownRenderer: FC<MarkdownRendererProps> = ({
                       {match ? match[1] : 'txt'}
                     </span>
                   </div>
-                  <CodeCopyButton textToCopy={codeString} />
+                  <CopyButton textToCopy={codeString} />
                 </div>
 
                 <SyntaxHighlighter
