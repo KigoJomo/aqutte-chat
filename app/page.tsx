@@ -14,7 +14,7 @@ export default function Home() {
   const router = useRouter();
 
   const createChat = useMutation(api.chat.createChat);
-  const { setCurrentChatId, setChatMessages } = useChatStore();
+  const { setCurrentChatId, setChatMessages, addChat } = useChatStore();
 
   const onChange = (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
@@ -33,8 +33,17 @@ export default function Home() {
       const title = tempChatTitle(input);
       const chatId = await createChat({ title });
 
+      const newChat = {
+        _id: chatId,
+        userId: '',
+        title,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }
+
       setCurrentChatId(chatId);
       setChatMessages(chatId, []);
+      addChat(newChat)
 
       router.push(
         `/chat/${chatId}?initialMessage=${encodeURIComponent(input)}`
@@ -68,6 +77,7 @@ export default function Home() {
         input={input}
         onChange={onChange}
         handleSubmit={handleSubmit}
+        autoFocus
       />
     </>
   );

@@ -20,12 +20,14 @@ interface ChatInputProps {
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
   ) => void;
   handleSubmit: (e: FormEvent<Element>) => Promise<void>;
+  autoFocus?: boolean
 }
 
 export default function ChatInput({
   input,
   onChange,
   handleSubmit,
+  autoFocus = false
 }: ChatInputProps) {
   /**
    * input behaviour logic
@@ -80,6 +82,7 @@ export default function ChatInput({
           '!p-2 !border-0 !rounded-none text-base',
           'resize-none overflow-y-auto custom-scrollbar'
         )}
+        autoFocus={autoFocus}
         aria-label="Chat input"
       />
       <div className="w-full flex items-center justify-between">

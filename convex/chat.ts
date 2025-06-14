@@ -43,7 +43,7 @@ export const addMessage = mutation({
       content: args.content,
       role: args.role,
       createdAt: new Date().toISOString(),
-      parts: [{ type: 'text', text: args.content }]
+      parts: [{ type: 'text', text: args.content }],
     });
   },
 });
@@ -61,4 +61,69 @@ export const getMessages = query({
   },
 });
 
-// TODO: get user chats
+export const getUserChats = query({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (identity === null) throw new Error('Not authenticated');
+
+    const chats = await ctx.db
+      .query('chats')
+      .filter((q) => q.eq(q.field('userId'), identity.subject))
+      .order('desc')
+      .collect();
+
+    return chats;
+  },
+});
+
+export const deleteChat = mutation({
+  args: {
+    chatId: v.id('chats'),
+  },
+  handler: async (ctx, { chatId }) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (identity === null) throw new Error('Not authenticated');
+
+    const chat = await ctx.db.get(chatId);
+
+    if (!chat || chat.userId === identity.subject) {
+      throw new Error('Chat not found or unauthorized');
+    }
+
+    const messages = await ctx.db
+      .query('messages')
+      .withIndex('by_chatId', (q) => q.eq('chatId', chatId))
+      .collect();
+
+    for (const msg of messages) {
+      await ctx.db.delete(msg._id);
+    }
+
+    await ctx.db.delete(chatId);
+  },
+});
+
+export const updateChatTitle = mutation({
+  args: {
+    chatId: v.id('chats'),
+    title: v.string(),
+  },
+  handler: async (ctx, { chatId, title }) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (identity === null) throw new Error('Not authenticated');
+
+    const chat = await ctx.db.get(chatId);
+
+    if (!chat || chat.userId === identity.subject) {
+      throw new Error('Chat not found or unauthorized');
+    }
+
+    await ctx.db.patch(chatId, {
+      title,
+      updatedAt: new Date().toISOString(),
+    });
+  },
+});

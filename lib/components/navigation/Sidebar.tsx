@@ -1,16 +1,20 @@
+// lib/components/navigation/Sidebar.tsx
+
 'use client';
 
 import { cn } from '@/lib/utils/utils';
 import { useState } from 'react';
 import Button from '../ui/Button';
 import Logo from '../ui/Logo';
-import { LogIn, PanelLeft } from 'lucide-react';
+import { LogIn, PanelLeft, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { SignInButton, UserButton } from '@clerk/nextjs';
 import { Authenticated, Unauthenticated } from 'convex/react';
+import ChatList from './ChatList';
 
 const Sidebar = () => {
   const [open, setOpen] = useState(false);
+
   const toggleSidebar = () => {
     setOpen(!open);
   };
@@ -20,7 +24,7 @@ const Sidebar = () => {
       <div className="w-full fixed top-0 z-[60]  flex items-center gap-2 justify-between px-4 h-18">
         <div
           className={cn(
-            'flex items-center w-fit h-fit py-1 bg-background-dark/70 px-2 pr-4 rounded-md',
+            'flex items-center w-fit h-fit py-1 bg-background-dark/70 backdrop-blur-sm px-2 pr-4 rounded-md',
             open ? 'gap-24' : 'gap-2',
             'transition-all duration-200'
           )}>
@@ -68,7 +72,17 @@ const Sidebar = () => {
           )}>
           <hr className="w-full transition-all duration-200" />
 
-          <nav className={cn('w-full flex flex-col gap-4')}></nav>
+          <Button variant='outline' linkClasses='w-full' className='w-full' href='/'>
+            <Plus size={16} />
+            <span className='text-sm'>New Chat</span>
+          </Button>
+
+          <nav
+            className={cn('w-full flex flex-col gap-4 flex-1 overflow-y-auto')}>
+            <Authenticated>
+              <ChatList />
+            </Authenticated>
+          </nav>
         </div>
       </aside>
     </>

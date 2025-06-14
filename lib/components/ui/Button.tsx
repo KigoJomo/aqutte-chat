@@ -22,8 +22,12 @@ interface ButtonProps extends HTMLButtonProps, MotionButtonProps {
   variant?: 'primary' | 'outline' | 'seamless' | 'danger';
   size?: 'default' | 'sm' | 'lg';
   className?: string;
+  linkClasses?: string
   type?: 'button' | 'submit' | 'reset';
-  onClick?: (() => void) | ((e: FormEvent<Element>) => Promise<void>);
+  onClick?:
+    | (() => void)
+    | ((e: FormEvent<Element>) => Promise<void>)
+    | ((e: FormEvent<Element>) => void);
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -33,6 +37,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'default',
   className = '',
+  linkClasses ='',
   type = 'button',
   onClick,
   ...props
@@ -43,9 +48,10 @@ const Button: React.FC<ButtonProps> = ({
 
   // variant styles
   const variantStyles = {
-    primary: 'bg-accent text-foreground hover:opacity-90 border border-foreground/30',
+    primary:
+      'bg-accent text-foreground hover:opacity-90 border border-foreground/30',
     outline:
-      'bg-transparent border border-foreground-light/40 text-foreground hover:bg-accent/5',
+      'bg-transparent border border-accent/50 text-foreground hover:bg-accent/5',
     seamless: 'bg-transparent text-foreground hover:bg-background-light !p-2',
     danger: 'bg-red-500 text-background hover:bg-red-600',
   };
@@ -62,7 +68,7 @@ const Button: React.FC<ButtonProps> = ({
 
   if (href) {
     return (
-      <Link href={href} target={target}>
+      <Link href={href} target={target} className={linkClasses}>
         <motion.button
           // whileHover={{ scale: 0.98 }}
           whileTap={{ scale: 1.02 }}

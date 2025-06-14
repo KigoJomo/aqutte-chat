@@ -16,7 +16,13 @@ export interface InputProps {
   onChange?: (
     e: ChangeEvent<HTMLInputElement> | ChangeEvent<HTMLTextAreaElement>
   ) => void;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onKeyDown?: (
+    e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  onBlur?: (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => void;
+  autoFocus?: boolean;
   placeholder?: string;
   id?: string;
   required?: boolean;
@@ -41,6 +47,8 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
       value,
       onChange,
       onKeyDown,
+      onBlur,
+      autoFocus = false,
       placeholder = '',
       id,
       required = false,
@@ -83,6 +91,8 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
           value={value as string | number}
           onChange={onChange}
           onKeyDown={onKeyDown}
+          onBlur={onBlur}
+          autoFocus={autoFocus}
           placeholder={placeholder}
           disabled={disabled}
           required={required}
@@ -102,6 +112,8 @@ const Input = forwardRef<HTMLInputElement | HTMLTextAreaElement, InputProps>(
           checked={type === 'checkbox' ? checked || false : undefined}
           onChange={onChange}
           onKeyDown={onKeyDown}
+          onBlur={onBlur}
+          autoFocus={autoFocus}
           placeholder={placeholder}
           disabled={disabled}
           required={required}
