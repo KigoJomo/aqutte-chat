@@ -88,7 +88,7 @@ export const deleteChat = mutation({
 
     const chat = await ctx.db.get(chatId);
 
-    if (!chat || chat.userId === identity.subject) {
+    if (!chat || chat.userId !== identity.subject) {
       throw new Error('Chat not found or unauthorized');
     }
 
@@ -117,7 +117,8 @@ export const updateChatTitle = mutation({
 
     const chat = await ctx.db.get(chatId);
 
-    if (!chat || chat.userId === identity.subject) {
+    if (!chat || chat.userId !== identity.subject) {
+      if(chat) console.log(`Chat userId: ${chat.userId},\nIdentity subject: ${identity.subject}`);
       throw new Error('Chat not found or unauthorized');
     }
 

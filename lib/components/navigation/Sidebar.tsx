@@ -58,7 +58,7 @@ const Sidebar = () => {
 
       <aside
         className={cn(
-          'h-dvh shrink-0 overflow-hidden z-50 py-2',
+          'h-dvh shrink-0 overflow-hidden z-50 py-2 hide-scrollbar',
           open ? 'w-64 px-2' : 'w-0 px-0',
           'transition-all duration-200',
           '*:text-nowrap *:whitespace-nowrap flex-nowrap *:shrink-0'
@@ -78,7 +78,7 @@ const Sidebar = () => {
           </Button>
 
           <nav
-            className={cn('w-full flex flex-col gap-4 flex-1 overflow-y-auto')}>
+            className={cn('w-full flex flex-col gap-4 flex-1 overflow-y-auto hide-scrollbar')}>
             <Authenticated>
               <ChatList />
             </Authenticated>

@@ -8,7 +8,7 @@ import {
   MoreHorizontal,
   Trash2,
 } from 'lucide-react';
-import { useState, KeyboardEvent, useEffect } from 'react';
+import { useState, KeyboardEvent, useEffect, useRef } from 'react';
 import Input from '../ui/Input';
 import { cn } from '@/lib/utils/utils';
 import Button from '../ui/Button';
@@ -39,6 +39,40 @@ function ChatItem({
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(chat.title);
   const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        !buttonRef.current?.contains(event.target as Node)
+      ) {
+        setShowMenu(false);
+      }
+    }
+
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () =>
+        document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showMenu]);
+
+  // Close menu on escape key
+  useEffect(() => {
+    function handleEscape(event: globalThis.KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setShowMenu(false);
+      }
+    }
+
+    if (showMenu) {
+      document.addEventListener('keydown', handleEscape);
+      return () => document.removeEventListener('keydown', handleEscape);
+    }
+  }, [showMenu]);
 
   const handleRename = () => {
     if (editTitle.trim() && editTitle !== chat.title) {
@@ -61,10 +95,12 @@ function ChatItem({
   return (
     <li
       className={cn(
-        'group relative w-full pl-3 pr-2 py-1 rounded-full cursor-pointer, transition-all duration-200',
-        "flex items-center gap-2",
+        'group relative w-full pl-3 pr-2 py-1 rounded-full cursor-pointer transition-all duration-200',
+        'overflow-x-visible hide-scrollbar',
+        'flex items-center gap-2',
         'hover:bg-accent/20',
-        isActive && 'bg-accent/50'
+        isActive && 'bg-accent/50',
+        showMenu || (isEditing && '!bg-accent/20')
       )}
       onClick={!isEditing ? onSelect : undefined}>
       <MessageSquare
@@ -80,15 +116,18 @@ function ChatItem({
           onChange={(e) => setEditTitle(e.target.value)}
           onBlur={handleRename}
           onKeyDown={handleKeyDown}
-          className="flex-1 *:!text-sm"
+          className="flex-1 *:!text-xs *:p-0.5 *:rounded-sm"
           autoFocus
         />
       ) : (
-        <span className="text-xs truncate cursor-pointer">{chat.title}</span>
+        <span className="text-xs truncate" title={chat.title}>
+          {chat.title}
+        </span>
       )}
 
       <div className="relative ml-auto">
         <Button
+          ref={buttonRef}
           variant="seamless"
           className={cn(
             'opacity-0 group-hover:opacity-100 transition-all duration-200',
@@ -102,27 +141,41 @@ function ChatItem({
         </Button>
 
         {showMenu && (
-          <div className="absolute right-0 top-full mt-1 bg-background-dark border border-accent rounded-md shadow-lg z-10 min-w-32">
+          <div
+            ref={menuRef}
+            className={cn(
+              'absolute right-0 top-full mt-1 z-10 min-w-32',
+              'bg-background backdrop-blur-2xl rounded-md shadow-2xl',
+              'p-1 flex flex-col gap-1',
+              'border-2 border-foreground-light/20'
+            )}>
             <Button
               variant="seamless"
               onClick={(e) => {
                 e.stopPropagation();
                 setIsEditing(true);
                 setShowMenu(false);
-              }}>
+              }}
+              className={cn(
+                'flex items-center justify-start gap-2 w-full rounded-md'
+              )}>
               <Edit3 size={12} />
-              <span>Rename</span>
+              <span className="text-xs">Rename</span>
             </Button>
 
             <Button
-              variant="seamless"
+              variant="danger"
+              size="sm"
               onClick={(e) => {
                 e.stopPropagation();
-                onDelete();
+                onDelete(); // TODO: confirm before deleting
                 setShowMenu(false);
-              }}>
+              }}
+              className={cn(
+                'flex items-center justify-start gap-2 w-full rounded-md !p-2'
+              )}>
               <Trash2 size={12} />
-              <span>Delete</span>
+              <span className="text-xs">Delete</span>
             </Button>
           </div>
         )}
@@ -201,7 +254,7 @@ export default function ChatList() {
   }
 
   return (
-    <div className="w-full flex flex-col gap-1">
+    <div className="w-full flex-1 flex flex-col gap-1 overflow-hidden hide-scrollbar">
       {chats.map((chat) => (
         <ChatItem
           key={chat._id}

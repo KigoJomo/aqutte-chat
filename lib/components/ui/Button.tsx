@@ -22,7 +22,7 @@ interface ButtonProps extends HTMLButtonProps, MotionButtonProps {
   variant?: 'primary' | 'outline' | 'seamless' | 'danger';
   size?: 'default' | 'sm' | 'lg';
   className?: string;
-  linkClasses?: string
+  linkClasses?: string;
   type?: 'button' | 'submit' | 'reset';
   onClick?:
     | (() => void)
@@ -37,7 +37,7 @@ const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'default',
   className = '',
-  linkClasses ='',
+  linkClasses = '',
   type = 'button',
   onClick,
   ...props
@@ -53,7 +53,7 @@ const Button: React.FC<ButtonProps> = ({
     outline:
       'bg-transparent border border-accent/50 text-foreground hover:bg-accent/5',
     seamless: 'bg-transparent text-foreground hover:bg-background-light !p-2',
-    danger: 'bg-red-500 text-background hover:bg-red-600',
+    danger: 'bg-transparent text-red-300 hover:bg-red-500/10',
   };
 
   // size styles
