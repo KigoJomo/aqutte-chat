@@ -1,27 +1,38 @@
 'use client';
 
 import { Id } from '@/convex/_generated/dataModel';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Messages from '../components/Messages';
 import ChatInput from '../components/ChatInput';
 import { useChatIntergration } from '@/lib/hooks/use-chat-integration';
+import { Loader2 } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { useEffect } from 'react';
 
 export default function ChatPage() {
   const params = useParams();
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
+  const router = useRouter()
   const chatId = params.id as Id<'chats'>;
-  const intialMessage = searchParams.get('initialMessage') || undefined
+  const intialMessage = searchParams.get('initialMessage') || undefined;
 
-  const {
-    messages,
-    input,
-    handleInputChange,
-    handleSubmit
-  } = useChatIntergration(chatId, intialMessage)
+  const chatExists = useQuery(api.chat.getChatById, { chatId })
+
+  const { messages, input, handleInputChange, handleSubmit } =
+    useChatIntergration(chatId, intialMessage);
+  
+  useEffect(() => {
+    if (chatExists === null) {
+      router.replace('/')
+    }
+  }, [chatExists, router])
 
   return !messages ? (
-    <div className="flex-1 flex flex-col items-center justify-center gap-4">
-      <h3>loading chat ...</h3>
+    <div className="w-full flex items-center justify-center gap-4 p-4">
+      <span className="text-sm text-foreground-light/70">Loading chat</span>
+
+      <Loader2 size={12} className="stroke-foreground-light/50 animate-spin" />
     </div>
   ) : (
     <>

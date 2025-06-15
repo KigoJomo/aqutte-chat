@@ -53,7 +53,7 @@ const Button: React.FC<ButtonProps> = ({
     outline:
       'bg-transparent border border-accent/50 text-foreground hover:bg-accent/5',
     seamless: 'bg-transparent text-foreground hover:bg-background-light !p-2',
-    danger: 'bg-transparent text-red-300 hover:bg-red-500/10',
+    danger: 'bg-transparent text-red-300 hover:bg-red-500/10 border border-red-300',
   };
 
   // size styles

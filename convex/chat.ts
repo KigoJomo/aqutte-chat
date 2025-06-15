@@ -128,3 +128,22 @@ export const updateChatTitle = mutation({
     });
   },
 });
+
+export const getChatById = query({
+  args: {
+    chatId: v.id('chats'),
+  },
+  handler: async (ctx, { chatId }) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (identity === null) throw new Error('Not authenticated');
+
+    const chat = await ctx.db.get(chatId);
+
+    if (!chat || chat.userId !== identity.subject) {
+      return null;
+    }
+
+    return chat;
+  },
+});
